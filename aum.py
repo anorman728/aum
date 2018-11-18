@@ -16,7 +16,8 @@ dbObj = AumDbMan()
 
 # START TEST CODE
 
-print(dbObj.addIssue('testissue', 1))
+#print(dbObj.addIssue('testissue', 1))
+dbObj.closeIssue(2)
 
 # END TEST CODE
 

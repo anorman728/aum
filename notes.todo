@@ -11,7 +11,7 @@ Basic idea:
     + Create specifics of what the structure of the db should be.
     + Constructor creates table if it doesn't exist.
     + Function for adding an issue.
-    > Function for closing an issue.
+    + Function for closing an issue.
     > Function for modifying an issue's priority IV.
     > Function for modifying an issue's effective_start_date.
     > Function for adding a comment to an issue.

@@ -29,7 +29,7 @@ class AumDbMan:
         qryDum = '''INSERT INTO issues(
             issue_name,
             priority_initial_value,
-            start_date,
+            added_date,
             effective_start_date
         )
         VALUES(?,?,?,?)'''
@@ -38,6 +38,17 @@ class AumDbMan:
         cursor.execute(qryDum, [name, piv, dateDum, dateDum])
         self.db.commit()
         return cursor.lastrowid
+
+    def closeIssue(self, id):
+        """Close an existing issue.
+
+        Keyword arguments:
+        id -- id of issue.
+        """
+        qryDum = 'UPDATE issues SET open=0 WHERE id=?'
+        cursor = self.db.cursor()
+        cursor.execute(qryDum, [id])
+        self.db.commit()
 
 
     # Helper functions below this line.
@@ -54,7 +65,7 @@ class AumDbMan:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             issue_name TEXT,
             priority_initial_value REAL,
-            start_date INTEGER,
+            added_date INTEGER,
             effective_start_date INTEGER,
             open INTEGER DEFAULT 1
         )'''
