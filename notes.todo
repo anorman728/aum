@@ -13,7 +13,7 @@ Basic idea:
     + Function for adding an issue.
     + Function for closing an issue.
     + Function for modifying an issue's priority IV.
-    > Function for modifying an issue's effective_start_date.
+    + Function for modifying an issue's effective_start_date.
     > Function for adding a comment to an issue.
     > Function for listing issues in order of priority.
     > Function for clearing closed issues.

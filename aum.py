@@ -16,9 +16,10 @@ dbObj = AumDbMan()
 
 # START TEST CODE
 
-print(dbObj.addIssue('testissue3', 3))
+#print(dbObj.addIssue('testissue3', 3))
 #dbObj.closeIssue(2)
-dbObj.changePiv(1, 1.5)
+#dbObj.changePiv(1, 1.5)
+dbObj.changeEffectiveStartDate(3, '1/1/1980')
 
 # END TEST CODE
 

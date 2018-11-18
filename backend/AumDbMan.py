@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sqlite3
 import time
@@ -54,11 +55,26 @@ class AumDbMan:
         """Change priority initial value.
 
         Keyword arguments:
+        id -- Id of issue to modify.
         piv -- New priority initial value.
         """
         qryDum = 'UPDATE issues SET priority_initial_value = ? where id = ?'
         cursor = self.db.cursor()
         cursor.execute(qryDum, [piv, id])
+        self.db.commit()
+
+    def changeEffectiveStartDate(self, id, newDate):
+        """Change effective start date.
+
+        Keyword arguments:
+        id -- Id of issue to modify.
+        newDate -- String of new date, format %m/%d/%Y.
+        """
+        qryDum = 'UPDATE issues SET effective_start_date = ? where id = ?'
+        dtObj = datetime.strptime(newDate, '%m/%d/%Y')
+        dtEpc = dtObj.timestamp()
+        cursor = self.db.cursor()
+        cursor.execute(qryDum, [dtEpc, id])
         self.db.commit()
 
 
