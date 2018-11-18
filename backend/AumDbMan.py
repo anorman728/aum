@@ -18,7 +18,14 @@ class AumDbMan:
     # "Public" functions
 
     def addIssue(self, name, piv):
-        """Add a new issue."""
+        """Add a new issue.
+
+        Keyword arguments:
+        name -- Name of issue
+        piv -- Priority initial value
+
+        Return: id of issue
+        """
         qryDum = '''INSERT INTO issues(
             issue_name,
             priority_initial_value,
@@ -30,6 +37,7 @@ class AumDbMan:
         cursor = self.db.cursor()
         cursor.execute(qryDum, [name, piv, dateDum, dateDum])
         self.db.commit()
+        return cursor.lastrowid
 
 
     # Helper functions below this line.
