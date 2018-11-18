@@ -16,8 +16,9 @@ dbObj = AumDbMan()
 
 # START TEST CODE
 
-#print(dbObj.addIssue('testissue', 1))
-dbObj.closeIssue(2)
+print(dbObj.addIssue('testissue3', 3))
+#dbObj.closeIssue(2)
+dbObj.changePiv(1, 1.5)
 
 # END TEST CODE
 

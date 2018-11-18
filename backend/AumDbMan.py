@@ -50,6 +50,17 @@ class AumDbMan:
         cursor.execute(qryDum, [id])
         self.db.commit()
 
+    def changePiv(self, id, piv):
+        """Change priority initial value.
+
+        Keyword arguments:
+        piv -- New priority initial value.
+        """
+        qryDum = 'UPDATE issues SET priority_initial_value = ? where id = ?'
+        cursor = self.db.cursor()
+        cursor.execute(qryDum, [piv, id])
+        self.db.commit()
+
 
     # Helper functions below this line.
 
