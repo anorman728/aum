@@ -2,7 +2,11 @@
 
 # AUM: Andrew's Urgency Manager.
 
+# Import modules.
+import pprint
 import sys
+
+# Import classes from other files.
 sys.path.insert(0, './backend')
 from AumDbMan import AumDbMan
 
@@ -16,12 +20,14 @@ dbObj = AumDbMan()
 
 # START TEST CODE
 
-#print(dbObj.addIssue('testissue3', 3))
+pp = pprint.PrettyPrinter(indent=4)
+#dbObj.addIssue('inf priority', 0)
 #dbObj.closeIssue(2)
 #dbObj.changePiv(1, 1.5)
-#dbObj.changeEffectiveStartDate(3, '1/1/1980')
+#dbObj.changeEffectiveStartDate(4, '6/1/2018')
 #dbObj.addComment(3, 'issue 3 second comment')
-print(dbObj.listIssues())
+pp.pprint(dbObj.listIssues())
+#dbObj.listIssues()
 
 # END TEST CODE
 

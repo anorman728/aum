@@ -15,7 +15,7 @@ Basic idea:
     + Function for modifying an issue's priority IV.
     + Function for modifying an issue's effective_start_date.
     + Function for adding a comment to an issue.
-    > Function for listing issues in order of priority.
+    + Function for listing issues in order of priority.
     > Function for clearing closed issues.
         * Will need to make sure it clears related comments.
     > Function for listing single issue.

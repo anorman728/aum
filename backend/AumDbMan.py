@@ -35,6 +35,8 @@ class AumDbMan:
         )
         VALUES(?,?,?,?)'''
         dateDum = time.time()
+        # There's some inconsistency here, because changing is only precise to
+        # the day, not the second, but it's just not something I care to fix.
         cursor = self.db.cursor()
         cursor.execute(qryDum, [name, piv, dateDum, dateDum])
         self.db.commit()
@@ -108,12 +110,15 @@ class AumDbMan:
             commentDum = comment['comment']
             allIssues[idDum]['comments'].append(commentDum)
 
-        for issue in allIssues:
-            # Todo: Add priority level.
+        for i in allIssues:
+            allIssues[i]['priority_level'] = self._buildPriorityLevel(
+                allIssues[i]['effective_start_date'],
+                allIssues[i]['priority_initial_value']
+            )
 
-        # Todo: Convert allIssues from dictionary to array.
-        # Todo: Sort allIssuesArr by priority level.
-        return allIssues
+        allIssuesList = self._convertToList(allIssues)
+        allIssuesList = self._sortByPriority(allIssuesList)
+        return allIssuesList
 
 
     # Helper functions below this line.
@@ -152,6 +157,7 @@ class AumDbMan:
             SELECT
                 id,
                 issue_name,
+                priority_initial_value,
                 added_date,
                 effective_start_date
             FROM
@@ -165,11 +171,12 @@ class AumDbMan:
         returnArr = {}
         for row in allRows:
             returnArr[row[0]] = {
-                'id'                       : row[0],
-                'issue'                    : row[1],
-                'added_date'               : row[2],
-                'effective_start_date'     : row[3],
-                'comments'                 : [] # This will be appended in the listIssues function.
+                'id'                        : row[0],
+                'issue'                     : row[1],
+                'priority_initial_value'    : row[2],
+                'added_date'                : row[3],
+                'effective_start_date'      : row[4],
+                'comments'                  : [] # This will be appended in the listIssues function.
             }
 
         # Todo: It'd be really useful for both this and future projects to
@@ -199,3 +206,64 @@ class AumDbMan:
                 'comment'   : row[1]
             })
         return returnArr
+
+    def _buildPriorityLevel(self, startTime, piv):
+        """ Build the priority level from a date (in Unix time).
+        Mathematical function is IV + (By)^2, where:
+            IV is the initial value.
+            B is a constant to prevent growing too quickly.
+            y is the amount of time passed.
+        (It used to be (IV + exp(B*y) - 1), but that didn't work out.)
+
+        Keyword arguments:
+        startTime -- Effective date, in unix time.
+        piv -- Priority initial value.
+
+        Return: float
+        """
+        if (piv == 0): # Zero is infinite priority.
+            return 0
+        currentTime = time.time()
+        y = currentTime - startTime
+        B = 2.8935185185185185e-07 # Urgency increases by .025 on first day.
+        try:
+            priorityLevel = piv + (B*y)**2
+        except OverflowError: #I sure hope I never have issues this old.
+            priorityLevel = 0 # Zero is "infinite priority".
+
+        return priorityLevel
+
+    def _convertToList(self, dictInput):
+        """ Convert a dictionary to a list. """
+        returnList = []
+        for i in dictInput:
+            returnList.append(dictInput[i])
+        return returnList
+
+    def _sortByPriority(self, issueList):
+        """ Sort a list of issues (formatted as dictionary). """
+        # This uses bubble sort.  Hopefully there won't be crazy long lists.
+        prioritizedList = issueList.copy()
+
+        # Pull out zeros for separate list.
+        zeroList = []
+        listLen = len(prioritizedList) - 1
+        for i in range(listLen, 0, -1):
+            if (prioritizedList[i]['priority_level'] == 0):
+                zeroList.append(prioritizedList[i])
+                del prioritizedList[i] # Prevent from being sorted twice.
+
+        # Bubble sort the rest
+        sorted = False
+        listLen = len(prioritizedList) - 1
+        while not sorted:
+            sorted = True # Assume true until disproven
+            for i in range(0, listLen):
+                # Sort by highest to lowest.
+                if (prioritizedList[i]['priority_level'] < prioritizedList[i+1]['priority_level']):
+                    print('catch')#dmz1
+                    dumDict = prioritizedList[i]
+                    prioritizedList[i] = prioritizedList[i+1]
+                    prioritizedList[i+1] = dumDict
+                    sorted = False
+        return zeroList + prioritizedList
