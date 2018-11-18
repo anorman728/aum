@@ -14,6 +14,15 @@ Basic idea:
     + Function for closing an issue.
     + Function for modifying an issue's priority IV.
     + Function for modifying an issue's effective_start_date.
-    > Function for adding a comment to an issue.
+    + Function for adding a comment to an issue.
     > Function for listing issues in order of priority.
     > Function for clearing closed issues.
+        * Will need to make sure it clears related comments.
+    > Function for listing single issue.
+        * Will be helpful for looking at comments.
+> Class for handling interacting with db.
+    * Basically nothing more than calling the functions and printing out the results.
+    * Listing the issues by priority might be difficult, though.
+    * AumInt (aum interface)
+> Main script
+    * Will just take arguments from cli and convert them to commands for AumInt

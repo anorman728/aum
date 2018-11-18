@@ -77,6 +77,44 @@ class AumDbMan:
         cursor.execute(qryDum, [dtEpc, id])
         self.db.commit()
 
+    def addComment(self, id, comment):
+        """Add a comment for an issue.
+
+        Keyword arguments:
+        id -- Id of issue to modify.
+        comment -- Comment to add.
+
+        return: id of comment
+        """
+        qryDum = '''INSERT INTO comments(
+            issue_id,
+            comment
+        )
+        VALUES (?, ?)
+        '''
+        cursor = self.db.cursor()
+        cursor.execute(qryDum, [id, comment])
+        self.db.commit()
+        return cursor.lastrowid
+
+    def listIssues(self):
+        """ List all issues in order of priority. """
+        # Getting issues and comments separately, because want comments to be an
+        # array inside the return array.
+        allIssues = self._listIssues_AllIssues()
+        allComments = self._listIssues_AllComments()
+        for comment in allComments:
+            idDum = comment['issue_id']
+            commentDum = comment['comment']
+            allIssues[idDum]['comments'].append(commentDum)
+
+        for issue in allIssues:
+            # Todo: Add priority level.
+
+        # Todo: Convert allIssues from dictionary to array.
+        # Todo: Sort allIssuesArr by priority level.
+        return allIssues
+
 
     # Helper functions below this line.
 
@@ -107,3 +145,57 @@ class AumDbMan:
         for cmd in [qryIssues, qryComments]:
             cursor.execute(cmd)
         self.db.commit()
+
+    def _listIssues_AllIssues(self):
+        """Get all issues."""
+        qryDum = '''
+            SELECT
+                id,
+                issue_name,
+                added_date,
+                effective_start_date
+            FROM
+                issues
+            WHERE
+                open = 1
+        '''
+        cursor = self.db.cursor()
+        cursor.execute(qryDum)
+        allRows = cursor.fetchall()
+        returnArr = {}
+        for row in allRows:
+            returnArr[row[0]] = {
+                'id'                       : row[0],
+                'issue'                    : row[1],
+                'added_date'               : row[2],
+                'effective_start_date'     : row[3],
+                'comments'                 : [] # This will be appended in the listIssues function.
+            }
+
+        # Todo: It'd be really useful for both this and future projects to
+        # abstract the junk above to a separate function.
+        return returnArr
+
+    def _listIssues_AllComments(self):
+        """Get all comments."""
+        qryDum = '''
+            SELECT
+                comments.issue_id,
+                comments.comment
+            FROM
+                comments
+                INNER JOIN issues ON
+                    issues.id = comments.issue_id
+            WHERE
+                issues.open = 1
+        '''
+        cursor = self.db.cursor()
+        cursor.execute(qryDum)
+        allRows = cursor.fetchall()
+        returnArr = []
+        for row in allRows:
+            returnArr.append({
+                'issue_id'  : row[0],
+                'comment'   : row[1]
+            })
+        return returnArr
