@@ -1,0 +1,17 @@
+Basic idea:
+    * Just need a basic CLI interface that does the following:
+        * Builds tables on startup if they don't already exist.
+        * Has command for inserting rows into the "issues" table.
+        * Has command for inserting rows into the "comments" table.
+        * Has command for modifying rows in the "issues" table.
+        * Has command for closing issues.
+        * Has commands for listing issues in order.
+
+> Build class for managing database.
+    > Create specifics of what the structure of the db should be.
+    > Constructor creates table if it doesn't exist.
+    > Function for adding an issue.
+    > Function for closing an issue.
+    > Function for modifying an issue's priority IV.
+    > Function for adding a comment to an issue.
+    > Function for listing issues in order of priority.
