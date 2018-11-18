@@ -12,7 +12,15 @@ from AumDbMan import AumDbMan
 #importlib.import_module('./src/AumDbMan.py')
 
 # Initialize database object.
-testObj = AumDbMan()
+dbObj = AumDbMan()
+
+# START TEST CODE
+
+dbObj.addIssue('testissue', 1)
+
+# END TEST CODE
 
 # Destroy database object.
-del testObj
+del dbObj
+
+print("Done.") # Delete this when done writing main script.
