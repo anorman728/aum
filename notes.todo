@@ -7,7 +7,7 @@ Basic idea:
         * Has command for closing issues.
         * Has commands for listing issues in order.
 
-> Build class for managing database.
++ Build class for managing database.
     + Create specifics of what the structure of the db should be.
     + Constructor creates table if it doesn't exist.
     + Function for adding an issue.
@@ -16,9 +16,9 @@ Basic idea:
     + Function for modifying an issue's effective_start_date.
     + Function for adding a comment to an issue.
     + Function for listing issues in order of priority.
-    > Function for clearing closed issues.
+    + Function for clearing closed issues.
         * Will need to make sure it clears related comments.
-    > Function for listing single issue.
+    + Function for listing single issue.
         * Will be helpful for looking at comments.
 > Class for handling interacting with db.
     * Basically nothing more than calling the functions and printing out the results.

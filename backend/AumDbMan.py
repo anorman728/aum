@@ -86,7 +86,7 @@ class AumDbMan:
         id -- Id of issue to modify.
         comment -- Comment to add.
 
-        return: id of comment
+        Return: id of comment
         """
         qryDum = '''INSERT INTO comments(
             issue_id,
@@ -98,6 +98,50 @@ class AumDbMan:
         cursor.execute(qryDum, [id, comment])
         self.db.commit()
         return cursor.lastrowid
+
+    def getIssue(self, id):
+        """Get a single issue by id (including comments).
+
+        Keyword arguments:
+        id -- Id of issue to pull.
+
+        Return: Dictionary of issue.
+        """
+
+        qryIss = """
+        SELECT
+            issues.issue_name,
+            issues.priority_initial_value,
+            issues.added_date,
+            issues.effective_start_date,
+            issues.open,
+            comments.comment,
+            comments.id
+        FROM
+            issues
+            INNER JOIN comments ON
+                issues.id = comments.issue_id
+        WHERE issues.id = ?
+        """
+        cursor = self.db.cursor()
+        cursor.execute(qryIss, [id])
+        rowDum = cursor.fetchone()
+        returnDict = {
+            'issue'                    : rowDum[0],
+            'priority_initial_value'   : rowDum[1],
+            'added_date'               : rowDum[2],
+            'effective_start_date'     : rowDum[3],
+            'open'                     : rowDum[4],
+            'comments'                 : [rowDum[5]] # Will be appended next.
+            'priority'                 : self._buildPriorityLevel(rowDum[3], rowDum[1]),
+        }
+        allRows = cursor.fetchall()
+        # fetchall skips the one already received in fetchone().
+        for row in allRows:
+            returnDict['comments'].append(row[5])
+
+        return returnDict
+
 
     def listIssues(self):
         """ List all issues in order of priority. """
@@ -151,6 +195,7 @@ class AumDbMan:
         # Delete the comments with the found ids.
         delClause = ','.join(delList)
         qryCom = 'DELETE FROM comments WHERE id in (' + delClause + ')'
+        # Todo: Parameterize this.  (Not a security issue, but should anyway.)
         cursor.execute(qryCom)
 
         self.db.commit()

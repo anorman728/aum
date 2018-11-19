@@ -28,7 +28,8 @@ pp = pprint.PrettyPrinter(indent=4)
 #dbObj.addComment(4, 'issue 4 closed comment')
 #pp.pprint(dbObj.listIssues())
 #dbObj.listIssues()
-dbObj.clearClosed()
+#dbObj.clearClosed()
+pp.pprint(dbObj.getIssue(1))
 
 # END TEST CODE
 
