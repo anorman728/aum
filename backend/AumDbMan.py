@@ -120,6 +120,41 @@ class AumDbMan:
         allIssuesList = self._sortByPriority(allIssuesList)
         return allIssuesList
 
+    def clearClosed(self):
+        """ Clear the closed issues.  Just to keep the db file from getting to
+        be too large and unwieldy."""
+
+        cursor = self.db.cursor()
+
+        # Delete closed issues.
+        qryIss = 'DELETE FROM issues WHERE open = 0'
+        cursor.execute(qryIss)
+
+        # Delete comments.
+        # May want to abstract the comments stuff to a different function.
+
+        # Collect ids of comments to delete. (Can't delete via join in SQLite.)
+        qryDum = '''
+            SELECT comments.id FROM
+                comments
+                LEFT JOIN issues ON
+                    comments.issue_id = issues.id
+            WHERE
+                issues.id is null
+        '''
+        cursor.execute(qryDum)
+        allRows = cursor.fetchall()
+        delList = []
+        for row in allRows:
+            delList.append(str(row[0]))
+
+        # Delete the comments with the found ids.
+        delClause = ','.join(delList)
+        qryCom = 'DELETE FROM comments WHERE id in (' + delClause + ')'
+        cursor.execute(qryCom)
+
+        self.db.commit()
+
 
     # Helper functions below this line.
 

@@ -21,13 +21,14 @@ dbObj = AumDbMan()
 # START TEST CODE
 
 pp = pprint.PrettyPrinter(indent=4)
-#dbObj.addIssue('inf priority', 0)
-#dbObj.closeIssue(2)
+#dbObj.addIssue('new issue', 1)
+#dbObj.closeIssue(4)
 #dbObj.changePiv(1, 1.5)
 #dbObj.changeEffectiveStartDate(4, '6/1/2018')
-#dbObj.addComment(3, 'issue 3 second comment')
-pp.pprint(dbObj.listIssues())
+#dbObj.addComment(4, 'issue 4 closed comment')
+#pp.pprint(dbObj.listIssues())
 #dbObj.listIssues()
+dbObj.clearClosed()
 
 # END TEST CODE
 
