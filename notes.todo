@@ -36,6 +36,7 @@ Basic idea:
         * ./aum.py # No flags.  List all issues.
         * ./aum.py -h # Display this help file.
 > Eventually:
-    > Re-open
+    > View all closed issues.
+    > Re-open issue.
     > Change name
     > Delete comment

@@ -25,7 +25,7 @@ class AumForm:
     def closeIssue(self, id):
         issueDum = self._getIssue(id)
         self.aumDbMan.closeIssue(id)
-        print("Closed issue #" + str(id) + ', "' + issueDum['issue'] + '.')
+        print("Closed issue #" + str(id) + ', "' + issueDum['issue'] + '".')
 
     def changePiv(self, id, piv):
         issueDum = self._getIssue(id)
@@ -64,7 +64,7 @@ class AumForm:
 
         # Todo: There's probably a "space adding thingamajig" that could
         # calculate the number of spaces needed.
-        dispStr+= '#' + str(id) + '        : ' + issue['issue'] + '\n'
+        dispStr+= '#' + str(id) + ' (' + issue['issue'] + ')\n'
         dispStr+= 'Added     : ' + self._formatDate(issue['added_date']) + '\n'
         dispStr+= 'Start date: ' + self._formatDate(issue['effective_start_date']) + '\n'
         dispStr+= 'Open?     : ' + ('Yes' if issue['open'] == 1 else 'No') + '\n'
