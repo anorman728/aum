@@ -3,6 +3,13 @@ import os
 import sqlite3
 import time
 
+# Todo:  If I ever want to do any major refactoring of this, will want to use
+# something like row_factory.
+# https://stackoverflow.com/questions/3300464/how-can-i-get-dict-from-sqlite-query
+
+# Todo: There's some inconsistency here about how dates are handled.  This class
+# should only ever handle unix time.  Need to fix that.
+
 class AumDbMan:
     """Class to manage the Aum database.  (The \"model\")."""
 
@@ -16,7 +23,7 @@ class AumDbMan:
         self.db.close()
 
 
-    # "Public" functions
+    # Public functions.
 
     def addIssue(self, name, piv):
         """Add a new issue.
@@ -99,11 +106,12 @@ class AumDbMan:
         self.db.commit()
         return cursor.lastrowid
 
-    def getIssue(self, id):
+    def getIssue(self, id, includeComments = True):
         """Get a single issue by id (including comments).
 
         Keyword arguments:
         id -- Id of issue to pull.
+        includeComments -- Boolean, defaults to True.
 
         Return: Dictionary of issue.
         """
@@ -119,7 +127,7 @@ class AumDbMan:
             comments.id
         FROM
             issues
-            INNER JOIN comments ON
+            LEFT JOIN comments ON
                 issues.id = comments.issue_id
         WHERE issues.id = ?
         """
@@ -132,9 +140,13 @@ class AumDbMan:
             'added_date'               : rowDum[2],
             'effective_start_date'     : rowDum[3],
             'open'                     : rowDum[4],
-            'comments'                 : [rowDum[5]] # Will be appended next.
             'priority'                 : self._buildPriorityLevel(rowDum[3], rowDum[1]),
         }
+        if not includeComments:
+            return returnDict
+
+        # If include comments, adding them here.
+        returnDict['comments'] = [rowDum[5]] # Will be appended next.
         allRows = cursor.fetchall()
         # fetchall skips the one already received in fetchone().
         for row in allRows:
@@ -341,7 +353,6 @@ class AumDbMan:
             for i in range(0, listLen):
                 # Sort by highest to lowest.
                 if (prioritizedList[i]['priority_level'] < prioritizedList[i+1]['priority_level']):
-                    print('catch')#dmz1
                     dumDict = prioritizedList[i]
                     prioritizedList[i] = prioritizedList[i+1]
                     prioritizedList[i+1] = dumDict
