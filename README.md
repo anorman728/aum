@@ -7,7 +7,7 @@ This resolves that problem by increasing the priority level of an item over time
 
 I built this for myself, but decided to share here in case someone else finds it to be helpful.  As such, this README isn't really intended to help too much with troubleshooting and I'm assuming that you already know the basics of the Unix-like command line and how to run \*.py files.
 
-It's a command-line program written in Python and requires a Python 3 interpreter.  (It won't work in Python 2.7.)  The first thing you'll want to do is make the aum.py file executable with `chmod +x aum.py`.
+It's a command-line program written in Python and requires a Python 3 interpreter.  (It won't work in Python 2.7.)  The first thing you'll want to do is make the aum.py file executable with `chmod +x ./aum.py`.
 
 It's written in Ubuntu and expects the executable for python3 to be `/usr/bin/python3`, but you can bypass that by running it with `python3` (or `python` if that's what your distro uses for Python 3), or you can change the shebang at the beginning of aum.py. (I imagine it'd work in Windows and Mac as long as you have Python 3 installed.)
 
