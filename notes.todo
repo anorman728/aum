@@ -25,7 +25,16 @@ Basic idea:
     * Listing the issues by priority might be difficult, though.
     * AumForm (aum format)
 > Main script
-    * Will just take arguments from cli and convert them to commands for AumInt
+    * Will just take arguments from cli and convert them to commands for AumForm
+    * Need to organize how flags will work.
+        * ./aum.py -a -n "Issue name" -p 3 # Adds an issue with name and initial priority value of 3.
+        * ./aum.py -c 5 # Closes issue #5.
+        * ./aum.py -m -i 2 -p 4 # Modifies issue #2 to initial priority level 4.
+        * ./aum.py -m -i 2 -d '4/5/2018' # Modifies issue #2 to effective date of 4/5/2018.
+        * ./aum.py -i 2 -t 'this is a text comment' # Add text comment 
+        * ./aum.py -i 2 # Display issue in toto.
+        * ./aum.py # No flags.  List all issues.
+        * ./aum.py -h # Display this help file.
 > Eventually:
     > Re-open
     > Change name

@@ -3,7 +3,6 @@
 # AUM: Andrew's Urgency Manager.
 
 # Import modules.
-import pprint # Temporary.
 import sys
 
 # Import classes from other files.
@@ -12,24 +11,67 @@ from AumForm import AumForm
 
 # "Main method" script.  I don't know what they call it for Python.
 
+# Helper functions.
+
+def getFlagVal(flag):
+    argv = sys.argv
+    ind = argv.index(flag)
+    malInput = 'Missing argument for ' + flag + '.'
+
+    if ind == len(argv):
+        # In this case, the flag required an argument, but the flag was the last
+        # thing provided.
+        raise ValueError(malInput)
+    returnVal = argv[ind+1]
+
+    if (returnVal[0] == '-'):
+        # Went from one flag to the next without an argument.
+        raise ValueError(malInput)
+
+    return returnVal
+
 # Initialize database object.
 aumFormObj = AumForm()
 
-# START TEST CODE
+argv = sys.argv
+# I don't know a better way to do this than this giant conditional.
 
-pp = pprint.PrettyPrinter(indent=4)
-#aumFormObj.addIssue('aumform test issue', 4)
-#aumFormObj.closeIssue(8)
-#aumFormObj.changePiv(8, 5)
-aumFormObj.changeEffectiveStartDate(6, '6/1/2018')
-#aumFormObj.addComment(8, 'test comment for aumform')
-#aumFormObj.displayIssue(8)
-#aumFormObj.clearClosed()
-aumFormObj.listAll()
+if len(argv) == 1: # List all the things.
+    aumFormObj.listAll()
 
-# END TEST CODE
+elif '-h' in argv: # Show help text.
+    aumFormObj.help()
+
+elif '-a' in argv: # Add an issue.
+    if ('-n' not in argv) or ('-p' not in argv):
+        # Check these specially just to make error a little clearer.
+        raise ValueError('Adding issue requires -n (name) and -p (priority).')
+    aumFormObj.addIssue(getFlagVal('-n'), getFlagVal('-p'))
+
+elif '-c' in argv: # Close an issue.
+    aumFormObj.closeIssue(getFlagVal('-i'))
+
+elif '-m' in argv: # Modify an issue.
+    id = getFlagVal('-i')
+    if '-p' in argv:
+        aumFormObj.changePiv(id, getFlagVal('-p'))
+    if '-d' in argv:
+        aumFormObj.changeEffectiveStartDate(id, getFlagVal('-d'))
+    # Note that can modify both priority and date in one command.  This wasn't
+    # part of my original design, but it's not a problem.
+
+elif '-t' in argv: # Add a text comment.
+    aumFormObj.addComment(getFlagVal('-i'), getFlagVal('-t'))
+
+elif '-i' in argv: # List an issue's details.
+    aumFormObj.displayIssue(getFlagVal('-i'))
+
+elif '-d' in argv: # Clear closed issues.
+    aumFormObj.clearClosed()
+
+else:
+    print('Unable to interpret input.  Missing argument(s): ' + ' '.join(argv))
+
 
 # Destroy database object.
 del aumFormObj
-
-print("Done.") # Delete this when done writing main script.

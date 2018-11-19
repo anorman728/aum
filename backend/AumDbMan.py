@@ -109,6 +109,8 @@ class AumDbMan:
     def getIssue(self, id, includeComments = True):
         """Get a single issue by id (including comments).
 
+        Will return None type if not found.
+
         Keyword arguments:
         id -- Id of issue to pull.
         includeComments -- Boolean, defaults to True.
@@ -134,6 +136,8 @@ class AumDbMan:
         cursor = self.db.cursor()
         cursor.execute(qryIss, [id])
         rowDum = cursor.fetchone()
+        if rowDum == None:
+            return None
         returnDict = {
             'issue'                    : rowDum[0],
             'priority_initial_value'   : rowDum[1],
@@ -146,7 +150,10 @@ class AumDbMan:
             return returnDict
 
         # If include comments, adding them here.
-        returnDict['comments'] = [rowDum[5]] # Will be appended next.
+        returnDict['comments'] = [str(rowDum[5])] # Will be appended next.
+        # Convert to string because it's possible that the comment is a "None"
+        # value.
+
         allRows = cursor.fetchall()
         # fetchall skips the one already received in fetchone().
         for row in allRows:

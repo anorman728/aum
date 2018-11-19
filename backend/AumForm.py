@@ -45,13 +45,22 @@ class AumForm:
 
     def addComment(self, id, comment):
         issueDum = self._getIssue(id)
+        if (issueDum == None):
+            print("Issue #" + id + " not found.")
+            return
+
         self.aumDbMan.addComment(id, comment)
         print('Added comment to issue #' + str(id) + " ("
         + issueDum['issue'] + '): "' + comment + '".')
 
     def displayIssue(self, id):
         issue = self.aumDbMan.getIssue(id)
+        if (issue == None):
+            print("Issue #" + id + " not found.")
+            return
         dispStr = '' # To make following lines interchangeable.
+        priDum = issue['priority']
+        priorityLvl = str(priDum) if (priDum !=0) else 'Highest'
 
         # Todo: There's probably a "space adding thingamajig" that could
         # calculate the number of spaces needed.
@@ -60,7 +69,7 @@ class AumForm:
         dispStr+= 'Start date: ' + self._formatDate(issue['effective_start_date']) + '\n'
         dispStr+= 'Open?     : ' + ('Yes' if issue['open'] == 1 else 'No') + '\n'
         dispStr+= 'Initial   : ' + str(issue['priority_initial_value']) + '\n'
-        dispStr+= 'Priority  : ' + str(issue['priority']) + '\n'
+        dispStr+= 'Priority  : ' + priorityLvl + '\n'
         dispStr+= 'Comments:\n'
         dispStr+= '\n'.join(issue['comments'])
         print(dispStr)
@@ -77,14 +86,30 @@ class AumForm:
         dispStr = '\n'
 
         for issue in allIssues:
+            priorDum = issue['priority_level']
+            priorityLvl = str(priorDum) if (priorDum != 0) else "Highest"
             dispStr+= "#" + str(issue['id']) + ": " + issue['issue'] + '\n'
             dispStr+= "Date : " + self._formatDate(issue['effective_start_date']) + '\n'
-            dispStr+= "Priority : " + str(issue['priority_level']) + '\n'
+            dispStr+= "Priority : " + priorityLvl + '\n'
             dispStr+= "---------\n"
             # Skipping comments.  For the moment, this should only be listed
             # when receiving one issue.
             # Todo: Make spaces equal.
         print(dispStr)
+
+    def help(self):
+        print('Usage by example:')
+        print('''
+        ./aum.py # No flags.  List all issues.
+        ./aum.py -h # Display this help file.
+        ./aum.py -a -n "Issue name" -p 3 # Adds an issue with name and initial priority value of 3.
+        ./aum.py -c -i 5 # Closes issue #5.
+        ./aum.py -m -i 2 -p 4 # Modifies issue #2 to initial priority level 4.
+        ./aum.py -m -i 2 -d '4/5/2018' # Modifies issue #2 to effective date of 4/5/2018.
+        ./aum.py -t 'this is a text comment' -i 2 # Add text comment to issue 2
+        ./aum.py -d # Delete closed comments.
+        ./aum.py -i 2 # Display issue in toto.
+        ''')
 
 
     # Helper functions below this line.
