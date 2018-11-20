@@ -36,6 +36,8 @@ Basic idea:
         * ./aum.py # No flags.  List all issues.
         * ./aum.py -h # Display this help file.
 > Eventually:
+    > Put issue on hold (and give reason).
+        * Because sometimes you can't do anything for a particular issue until something else happens first.
     > View all closed issues.
     > Re-open issue.
     > Change name
