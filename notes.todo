@@ -24,7 +24,7 @@ Basic idea:
     * Basically nothing more than calling the functions and printing out the results.
     * Listing the issues by priority might be difficult, though.
     * AumForm (aum format)
-> Main script
++ Main script
     * Will just take arguments from cli and convert them to commands for AumForm
     * Need to organize how flags will work.
         * ./aum.py -a -n "Issue name" -p 3 # Adds an issue with name and initial priority value of 3.
@@ -35,10 +35,10 @@ Basic idea:
         * ./aum.py -i 2 # Display issue in toto.
         * ./aum.py # No flags.  List all issues.
         * ./aum.py -h # Display this help file.
-> Eventually:
+Eventually:
     > Put issue on hold (and give reason).
         * Because sometimes you can't do anything for a particular issue until something else happens first.
-    > Change the formula to make urgency increase faster.
+    + Change the formula to make urgency increase faster.
     > View all closed issues.
     > Re-open issue.
     > Change name
