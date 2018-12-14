@@ -327,8 +327,8 @@ class AumDbMan:
         # There's some experimentation below because I can't decide what
         # constant for B I like best.
         #B = 2.8935185185185185e-07 # Urgency increases by .025 on first day.
-        B = 1.1574074074074074e-06 # Urgency increases by .1 on first day.
-        #B = 5.787037037037037e-07 # Urgency increases by .05 on first day.
+        #B = 1.1574074074074074e-06 # Urgency increases by .1 on first day.
+        B = 5.787037037037037e-07 # Urgency increases by .05 on first day.
         try:
             priorityLevel = piv + (B*y)**2
         except OverflowError: #I sure hope I never have issues this old.
