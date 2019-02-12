@@ -39,7 +39,7 @@ argv = sys.argv
 if len(argv) == 1: # List all the things.
     aumFormObj.listAll()
 
-elif '-h' in argv: # Show help text.
+elif '--help' in argv: # Show help text.
     aumFormObj.help()
 
 elif '-a' in argv: # Add an issue.
@@ -62,6 +62,14 @@ elif '-m' in argv: # Modify an issue.
 
 elif '-t' in argv: # Add a text comment.
     aumFormObj.addComment(getFlagVal('-i'), getFlagVal('-t'))
+
+elif '-lh' in argv: # List -n-hold issues.
+    aumFormObj.listOnHold()
+
+elif '-h' in argv: # Put issue on or off hold.
+    id = getFlagVal('-i')
+    holding = int(getFlagVal('-h'))
+    aumFormObj.holdIssue(id, holding)
 
 elif '-i' in argv: # List an issue's details.
     aumFormObj.displayIssue(getFlagVal('-i'))

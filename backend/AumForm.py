@@ -27,6 +27,13 @@ class AumForm:
         self.aumDbMan.closeIssue(id)
         print("Closed issue #" + str(id) + ', "' + issueDum['issue'] + '".')
 
+    def holdIssue(self, id, hold):
+        issueDum = self._getIssue(id)
+        self.aumDbMan.holdIssue(id, hold)
+        actionStr = "added" if hold == 1 else "removed"
+        print("Hold for issue #" + str(id) + " " + actionStr + ". ("
+        + issueDum['issue'] + ").")
+
     def changePiv(self, id, piv):
         issueDum = self._getIssue(id)
         self.aumDbMan.changePiv(id, piv)
@@ -68,6 +75,7 @@ class AumForm:
         dispStr+= 'Added     : ' + self._formatDate(issue['added_date']) + '\n'
         dispStr+= 'Start date: ' + self._formatDate(issue['effective_start_date']) + '\n'
         dispStr+= 'Open?     : ' + ('Yes' if issue['open'] == 1 else 'No') + '\n'
+        dispStr+= 'On hold?  : ' + ('Yes' if issue['on_hold'] == 1 else 'No') + '\n'
         dispStr+= 'Initial   : ' + str(issue['priority_initial_value']) + '\n'
         dispStr+= 'Priority  : ' + priorityLvl + '\n'
         dispStr+= 'Comments:\n'
@@ -83,30 +91,26 @@ class AumForm:
     def listAll(self):
         """Print all issues by order of priority."""
         allIssues = self.aumDbMan.listIssues()
-        dispStr = '\n'
+        print(self._formatIssues(allIssues))
 
-        for issue in allIssues:
-            priorDum = issue['priority_level']
-            priorityLvl = str(priorDum) if (priorDum != 0) else "Highest"
-            dispStr+= "#" + str(issue['id']) + ": " + issue['issue'] + '\n'
-            dispStr+= "Date : " + self._formatDate(issue['effective_start_date']) + '\n'
-            dispStr+= "Priority : " + priorityLvl + '\n'
-            dispStr+= "---------\n"
-            # Skipping comments.  For the moment, this should only be listed
-            # when receiving one issue.
-            # Todo: Make spaces equal.
-        print(dispStr)
+    def listOnHold(self):
+        """Print all on-hold issues by order of priority."""
+        onHoldIssues = self.aumDbMan.listOnHoldIssues()
+        print(self._formatIssues(onHoldIssues))
 
     def help(self):
         print('Usage by example:')
         print('''
-        ./aum.py # No flags.  List all issues.
-        ./aum.py -h # Display this help file.
+        ./aum.py # No flags.  List all issues that aren't on hold or closed..
+        ./aum.py --help # Display this help file.
         ./aum.py -a -n "Issue name" -p 3 # Adds an issue with name and initial priority value of 3.
         ./aum.py -c -i 5 # Closes issue #5.
         ./aum.py -m -i 2 -p 4 # Modifies issue #2 to initial priority level 4.
         ./aum.py -m -i 2 -d '4/5/2018' # Modifies issue #2 to effective date of 4/5/2018.
         ./aum.py -t 'this is a text comment' -i 2 # Add text comment to issue 2
+        ./aum.py -h 1 -i 2 # Put issue 2 on hold.
+        ./aum.py -h 0 -i 2 # Take hold off issue 2.
+        ./aum.py -lh # List all on hold issues.
         ./aum.py -d # Delete closed comments.
         ./aum.py -i 2 # Display issue in toto.
         ''')
@@ -120,3 +124,17 @@ class AumForm:
 
     def _formatDate(self, inputStr):
         return datetime.utcfromtimestamp(inputStr).strftime('%m/%d/%Y')
+
+    def _formatIssues(self, issues):
+        dispStr = '\n'
+        for issue in issues:
+            priorDum = issue['priority_level']
+            priorityLvl = str(priorDum) if (priorDum != 0) else "Highest"
+            dispStr+= "#" + str(issue['id']) + ": " + issue['issue'] + '\n'
+            dispStr+= "Date : " + self._formatDate(issue['effective_start_date']) + '\n'
+            dispStr+= "Priority : " + priorityLvl + '\n'
+            dispStr+= "---------\n"
+            # Skipping comments.  For the moment, this should only be listed
+            # when receiving one issue.
+            # Todo: Make spaces equal.
+        return dispStr

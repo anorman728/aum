@@ -36,8 +36,21 @@ Basic idea:
         * ./aum.py # No flags.  List all issues.
         * ./aum.py -h # Display this help file.
 Eventually:
-    > Put issue on hold (and give reason).
+    + Put issue on hold (and give reason).
         * Because sometimes you can't do anything for a particular issue until something else happens first.
+        + Add on_hold field.
+        + Function to put an item on hold.
+            + AumDbMan
+            + AumForm
+            + aum.py
+        + Function to view all items on hold.
+            + AumDbMan
+            + AumForm
+            + aum.py
+        + Function to view all items not on hold.
+            * Should be the existing function to view all.
+            * Will need to update two queries.
+        + Add "on hold" field to detailed view.
     + Change the formula to make urgency increase faster.
     > View all closed issues.
     > Re-open issue.

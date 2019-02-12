@@ -18,6 +18,9 @@ class AumDbMan:
         self._buildDatabaseFile()
         self._buildDatabase()
 
+        # Make sure the following are run in order.
+        self._databaseUpdate001()
+
     def __del__(self):
         """Destructor"""
         self.db.close()
@@ -58,6 +61,19 @@ class AumDbMan:
         qryDum = 'UPDATE issues SET open=0 WHERE id=?'
         cursor = self.db.cursor()
         cursor.execute(qryDum, [id])
+        self.db.commit()
+
+    def holdIssue(self, id, hold):
+        """ Put existing issue on hold.
+
+        Keyword arguments:
+        id -- id of issue.
+        hold -- boolean: true for putting on hold, false for removing hold.
+        """
+        qryDum = 'UPDATE issues SET on_hold = ? WHERE id = ?'
+        holding = 1 if hold else 0
+        cursor = self.db.cursor()
+        cursor.execute(qryDum, [holding, id])
         self.db.commit()
 
     def changePiv(self, id, piv):
@@ -125,6 +141,7 @@ class AumDbMan:
             issues.added_date,
             issues.effective_start_date,
             issues.open,
+            issues.on_hold,
             comments.comment,
             comments.id
         FROM
@@ -144,6 +161,7 @@ class AumDbMan:
             'added_date'               : rowDum[2],
             'effective_start_date'     : rowDum[3],
             'open'                     : rowDum[4],
+            'on_hold'                  : rowDum[5],
             'priority'                 : self._buildPriorityLevel(rowDum[3], rowDum[1]),
         }
         if not includeComments:
@@ -160,7 +178,6 @@ class AumDbMan:
             returnDict['comments'].append(row[5])
 
         return returnDict
-
 
     def listIssues(self):
         """ List all issues in order of priority. """
@@ -182,6 +199,25 @@ class AumDbMan:
         allIssuesList = self._convertToList(allIssues)
         allIssuesList = self._sortByPriority(allIssuesList)
         return allIssuesList
+
+    def listOnHoldIssues(self):
+        """ List all issues that are currently on hold. """
+        allOnHoldIssues = self._listIssues_OnHoldIssues()
+        allComments = self._listIssues_OnHoldComments()
+        for comment in allComments:
+            idDum = comment['issue_id']
+            commentDum = comment['comment']
+            allOnHoldIssues[idDum]['comments'].append(commentDum)
+
+        for i in allOnHoldIssues:
+            allOnHoldIssues[i]['priority_level'] = self._buildPriorityLevel(
+                allOnHoldIssues[i]['effective_start_date'],
+                allOnHoldIssues[i]['priority_initial_value']
+            )
+
+        allOnHoldIssuesList = self._convertToList(allOnHoldIssues)
+        allOnHoldIssuesList = self._sortByPriority(allOnHoldIssuesList)
+        return allOnHoldIssuesList
 
     def clearClosed(self):
         """ Clear the closed issues.  Just to keep the db file from getting to
@@ -250,9 +286,63 @@ class AumDbMan:
             cursor.execute(cmd)
         self.db.commit()
 
+    def _databaseUpdate001(self):
+        # Adds the on_hold field to the issues table.
+
+        # Check the existing version number.
+        # Todo: If make future updates, extract this to method.
+        qryVer = 'PRAGMA user_version'
+        cursor = self.db.cursor()
+        cursor.execute(qryVer)
+        rowDum = cursor.fetchone()
+
+        # If version is zero, update to 1.
+        if rowDum[0] == 0:
+            # If version is zero, add the new column.
+            qryUpdate = '''
+                ALTER TABLE
+                    issues
+                ADD COLUMN
+                    on_hold INTEGER DEFAULT 0
+            '''
+            cursor.execute(qryUpdate)
+            self.db.commit()
+
+            # Update version number.
+            qryUpdate = 'PRAGMA user_version = 1'
+            cursor.execute(qryUpdate)
+            self.db.commit()
+
     def _listIssues_AllIssues(self):
         """Get all issues."""
-        qryDum = '''
+        qryDum = self._listIssues_GenericQuery()
+        qryDum+='AND on_hold=0'
+        return self._listIssues_BuildIssueArr(qryDum)
+
+    def _listIssues_AllComments(self):
+        """Get all comments."""
+        qryDum = self._listIssues_GenericQuery()
+        qryDum+='AND issues.on_hold=0'
+
+        return self._listIssues_BuildComments(qryDum)
+
+    def _listIssues_OnHoldIssues(self):
+        """Get all on-hold issues."""
+        qryDum = self._listIssues_GenericQuery()
+        qryDum+='AND on_hold=1'
+
+        return self._listIssues_BuildIssueArr(qryDum)
+
+    def _listIssues_OnHoldComments(self):
+        """Get all comments for on-hold issues."""
+        qryDum = self._listIssues_Comments_GenericQuery()
+        qryDum+='AND issues.on_hold=1'
+
+        return self._listIssues_BuildComments(qryDum)
+
+    def _listIssues_GenericQuery(self):
+        """Generic query for getting issues."""
+        return '''
             SELECT
                 id,
                 issue_name,
@@ -264,27 +354,10 @@ class AumDbMan:
             WHERE
                 open = 1
         '''
-        cursor = self.db.cursor()
-        cursor.execute(qryDum)
-        allRows = cursor.fetchall()
-        returnArr = {}
-        for row in allRows:
-            returnArr[row[0]] = {
-                'id'                        : row[0],
-                'issue'                     : row[1],
-                'priority_initial_value'    : row[2],
-                'added_date'                : row[3],
-                'effective_start_date'      : row[4],
-                'comments'                  : [] # This will be appended in the listIssues function.
-            }
 
-        # Todo: It'd be really useful for both this and future projects to
-        # abstract the junk above to a separate function.
-        return returnArr
-
-    def _listIssues_AllComments(self):
-        """Get all comments."""
-        qryDum = '''
+    def _listIssues_Comments_GenericQuery(self):
+        """Generic query for getting comments."""
+        return '''
             SELECT
                 comments.issue_id,
                 comments.comment
@@ -295,14 +368,34 @@ class AumDbMan:
             WHERE
                 issues.open = 1
         '''
+
+    def _listIssues_BuildIssueArr(self, qryInput):
+        """Build issues from query."""
         cursor = self.db.cursor()
-        cursor.execute(qryDum)
+        cursor.execute(qryInput)
+        allRows = cursor.fetchall()
+
+        returnArr = {}
+        for row in allRows:
+            returnArr[row[0]] = {
+                'id'                        : row[0],
+                'issue'                     : row[1],
+                'priority_initial_value'    : row[2],
+                'added_date'                : row[3],
+                'effective_start_date'      : row[4],
+                'comments'                  : [] # This will be appended in the listIssues function.
+            }
+        return returnArr
+
+    def _listIssues_BuildComments(self, qryInput):
+        cursor = self.db.cursor()
+        cursor.execute(qryInput)
         allRows = cursor.fetchall()
         returnArr = []
         for row in allRows:
             returnArr.append({
-                'issue_id'  : row[0],
-                'comment'   : row[1]
+                'issue_id' : row[0],
+                'comment'  : row[1]
             })
         return returnArr
 
