@@ -168,14 +168,14 @@ class AumDbMan:
             return returnDict
 
         # If include comments, adding them here.
-        returnDict['comments'] = [str(rowDum[5])] # Will be appended next.
+        returnDict['comments'] = [str(rowDum[6])] # Will be appended next.
         # Convert to string because it's possible that the comment is a "None"
         # value.
 
         allRows = cursor.fetchall()
         # fetchall skips the one already received in fetchone().
         for row in allRows:
-            returnDict['comments'].append(row[5])
+            returnDict['comments'].append(row[6])
 
         return returnDict
 
